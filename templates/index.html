@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <main>
+        <h1>Seperia Home Assignment</h1>
+
+        <form method="GET" action="{{ url_for('get_products') }}">
+        <input
+            type="search"
+            name="q"
+            value="{{ search_query }}"
+            placeholder="Search products..."
+        >
+
+        <button type="submit" class="search-button">
+            Search
+        </button> 
+
+        {% if search_query %}
+            <a href="{{ url_for('get_products') }}" class="search-button">
+                Clear
+            </a>
+        {% endif %}
+    </form>
+
+        {% if error_message %}
+            <p>{{ error_message }}</p>
+        {% endif %}
+
+        {% if products %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Rating</th>
+                        <th>Stock</th>
+                        <th>Brand</th>
+                        <th>Category</th>
+                        <th>Thumbnail</th>
+                        <th>Gallery</th>
+                    </tr>
+                </thead>
+
+
+                <!-- iterates over the products and displays them in the table. -->
+                <tbody>
+                    {% for product in products %}
+                        <tr class="product-row">
+                            <td>
+                                {{ product.get("title", "Unknown") }}
+                            </td>
+
+                            <td>
+                                {{ product.get(
+                                    "description",
+                                    "No description"
+                                ) }}
+                            </td>
+
+                            <td>
+                                ${{ product.get("price", 0) }}
+                            </td>
+
+                            <td>
+                                {{ product.get("rating", "N/A") }}
+                            </td>
+
+                            <td>
+                                {{ product.get("stock", 0) }}
+                            </td>
+
+                            <td>
+                                {{ product.get("brand", "Unknown") }}
+                            </td>
+
+                            <td>
+                                {{ product.get("category", "Unknown") }}
+                            </td>
+
+                            <td>
+                                {% if product.get("thumbnail") %}
+                                    <img
+                                        src="{{ product.get('thumbnail') }}"
+                                        alt="{{ product.get(
+                                            'title',
+                                            'Product'
+                                        ) }}"
+                                        width="80"
+                                    >
+                                {% else %}
+                                    No image
+                                {% endif %}
+                            </td>
+                            <td class="gallery-button">
+                                <button onclick="handleClick(this)"
+                                data-images="{{ product.get('images', []) | tojson | forceescape }}">
+                                    View Gallery
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No products found.</p>
+        {% endif %}
+
+        <!-- nav handles the page navigation -->
+        <nav>
+            {% if current_page > 1 %} 
+            <a href="{{ url_for('get_products', page=current_page - 1) }}" class="nav-button"> 
+            Previous
+            </a>
+            {% endif %}
+
+            <span>
+                Page {{ current_page }} of {{ total_pages }}
+            </span>
+
+            {% if current_page < total_pages %}
+                <a href="{{ url_for('get_products', page=current_page + 1) }}" class="nav-button">
+                    Next
+                </a>
+            {% endif %}
+        </nav>
+    </main>
+    
+
+
+
+     <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
